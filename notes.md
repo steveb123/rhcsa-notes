@@ -95,3 +95,66 @@ To set sticky bit ```chmod +t directorypath```
 Default permissions on a newly created files are 666 by default, setting the mask to 022 will change this to 644.  
 Set umask ```umask 222```. This will change the permissions of newly created files to 444 (read only for user, group, other).  
 Umask isn't persistent, it will revert back to 022 at next login. System wide config is stored in /etc/profile.
+
+## Objective 2: Operate running systems
+### Managing the boot process
+
+#### Systemd boot targets
+```rd.break``` breaks to interactive shell still in initrd, allows interaction with the filesystem before it is mounted (can be used for resetting root password)  
+```emergency``` similar to rd.break but mounts the system disk (root password is required)  
+```rescue``` similar to emergency but starts some services (similar to old single user mode)
+
+#### Resetting root password
+```e``` at grub menu to edit the boot kernel  
+Find ```linux16``` and add ```rd.break``` to the end of the line, then boot kernel
+```mount -o rw,remount /systoot/``` mount sysroot as read/write  
+```chroot /sysroot``` chroot to sysroot  
+```passwd``` reset root password  
+```touch /.autorelabel``` to force SELinux to relabel filesystem  
+```exit``` exit chroot  
+```mount -o ro,remount /sysroot/``` mount as read only  
+```reboot``` reboot
+
+### Managing individual processes
+#### Tools
+```top```
+```ps```
+```pgrep``` combination of ps and grep
+
+#### Kill signals
+```kill -l``` lists all kill signals  
+```SIGTERM (15)``` asks process to exit cleanly  
+```SIGKILL (9)``` stops process immediately    
+```SIGHUP``` stops process in shell environment  
+```SIGINT``` same as CTRL+C  
+```SIGSTOP``` pause a processes  
+```SIGCONT``` starts a process that was stopped with SIGSTOP or SIGTSTP  
+```SIGTSTP``` terminal stop, similar to CTRL+z
+
+#### Nice levels
+-20(highest priority) to 19(lowest priority)  
+```renice -n -20 pidnumber```
+
+### Logging
+```systemctl status rsyslog```  
+config in /etc/rsyslog.conf  
+logrotate config in /etc/logrotate.conf  
+
+#### Journal examples
+Journal is binary and can be difficult to interact with, but it's powerful. Some examples below:  
+```journalctl -p err``` search for all errors  
+```journalctl -p err -since yesterday``` all errors since yesterday  
+```journalctl _UID=1000``` all errors associated with UID 1000  
+
+### Virtual machines
+```virsh list --all``` lists all vms (running and not running)  
+```virsh edit vmname``` view/edit xml config for vm
+
+### Service manipulation
+```systemctl start servicename``` start service  
+```systemctl stop servicename``` stop service
+```systemctl enable servicename``` enable at boot  
+
+### Transferring files
+```scp```  
+```sftp```

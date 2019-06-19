@@ -1,0 +1,9 @@
+- hosts: vm1
+  roles:
+    - common-utils
+
+        #- hosts: web-svr1
+        #   roles: 
+        #  - common-utils
+    #  - python
+    #  - flask

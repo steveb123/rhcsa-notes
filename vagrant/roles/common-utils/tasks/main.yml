@@ -1,0 +1,3 @@
+- name: install vim
+  yum: name=vim state=present
+  become: yes

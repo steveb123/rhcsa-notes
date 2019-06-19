@@ -1,1 +1,2 @@
-practice-tests/.vagrant
+vagrant/.vagrant
+vagrant/*.retry
