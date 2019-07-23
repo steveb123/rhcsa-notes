@@ -37,7 +37,7 @@ Interactive shell vs login shell.
 .bash_profile is loaded for login shell only, .bashrc is loaded for interactive shell.  
 ```su -``` uses login shell and root user environment  
 ```su``` uses interactive shell and remains in the environment for the previous user.
-
+https://www.google.com/https://www.google.com/https://www.googhttps://www.google.com/https://www.google.com/https://www.google.com/le.com/
 run single command with ```su -c```. For example, ```su -c "fdisk -l"```
 
 ### Compressing and decompressing files
@@ -158,3 +158,34 @@ Journal is binary and can be difficult to interact with, but it's powerful. Some
 ### Transferring files
 ```scp```  
 ```sftp```
+
+## Objective 3: Configure local storage
+### LVM
+1. ```pvcreate``` create physical volume. Example ```pvcreate volgroup```  
+2. ```vgcreate``` create volume group. Example, ```vgcreate volgroup1 /dev/sdb1```  
+3. ```lvcreate``` create logical volume. Example, ```lvcreate -L 100m volgroup1 -n dbvolume```  
+
+```pvdisplay```, ```vgdisplay```, ```lvdisplay``` to view physical, logical and volume groups.  
+
+After creating a logical volume, it can be mounted as normal.   
+```mkfs.xfs /dev/volgroup1/dbvolume```   
+```mkdir /mnt/db_data```  
+```mount /dev/volgroup1/dbvolume /mnt/dbdata```  
+
+```mount -a``` mounts all filesystems mentioned in fstab (good for testing that without reboot)  
+
+```lvextend``` to extend logical volume. Example, ```lvextend -L +200MB /dev/volgroup1/dbvolume```  
+Use lvextend with ```-r``` flag to resize the filesystem othwise will need to run ```xfs_growfs``` (for xfs) or ```resize2fs``` (for ext4).
+
+### Manipulating partitions
+MBR (master boot record), create/delete/edit with ```fdisk```  
+GPT (GUID partition table). Supports UEFI, allows more than 4 partitions per disk, required for disks over 2TB. Create/delete/edit with ```gdisk```  
+```partprobe``` informs kernel of partition table changes without rebooting
+
+### Managing mounted disks
+```xfs_admin```
+```tune2fs```
+
+## Objective 4: Create and configure file file systems
+
+### Network file systems
