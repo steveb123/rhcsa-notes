@@ -36,8 +36,7 @@ stderr into stdout ```myscript.sh > out 2>&1```
 Interactive shell vs login shell.  
 .bash_profile is loaded for login shell only, .bashrc is loaded for interactive shell.  
 ```su -``` uses login shell and root user environment  
-```su``` uses interactive shell and remains in the environment for the previous user.
-https://www.google.com/https://www.google.com/https://www.googhttps://www.google.com/https://www.google.com/https://www.google.com/le.com/
+```su``` uses interactive shell and remains in the environment for the previous user.  
 run single command with ```su -c```. For example, ```su -c "fdisk -l"```
 
 ### Compressing and decompressing files
@@ -189,3 +188,13 @@ GPT (GUID partition table). Supports UEFI, allows more than 4 partitions per dis
 ## Objective 4: Create and configure file file systems
 
 ### Network file systems
+nfs, smb/cifs
+
+### File permissions: ACLs
+ACL files have a '+' in the file permissions, non-ACL files have a '.'
+example ...
+getfacl
+setfacl
+'-d' for directory
+'-m' to modify
+```getfacl file1 | setfacl --set-file=- file2``` copies ACL permissions from file1 to file2.
