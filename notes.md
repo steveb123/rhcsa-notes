@@ -1,7 +1,7 @@
 # rhcsa-notes
 My notes from the Linux Academy RHCSA course
 
-## Objective 1: Understand and Use Essential Tools
+## Understand and Use Essential Tools
 
 ### Output redirection
 stderr only ```myscript.sh 2> errors```  
@@ -95,16 +95,15 @@ Default permissions on a newly created files are 666 by default, setting the mas
 Set umask ```umask 222```. This will change the permissions of newly created files to 444 (read only for user, group, other).  
 Umask isn't persistent, it will revert back to 022 at next login. System wide config is stored in /etc/profile.
 
-## Objective 2: Operate running systems
+## Operate running systems
 ### Managing the boot process
 
 #### Systemd boot targets
-```rd.break``` breaks to interactive shell still in initrd, allows interaction with the filesystem before it is mounted (can be used for resetting root password)  
+```rd.break``` breaks to interactive shell still in initrd, allows interaction with the filesystem before it is mounted (can be used for resetting root )  
 ```emergency``` similar to rd.break but mounts the system disk (root password is required)  
 ```rescue``` similar to emergency but starts some services (similar to old single user mode)
 
 #### Resetting root password
-```e``` at grub menu to edit the boot kernel  
 Find ```linux16``` and add ```rd.break``` to the end of the line, then boot kernel
 ```mount -o rw,remount /systoot/``` mount sysroot as read/write  
 ```chroot /sysroot``` chroot to sysroot  
@@ -158,7 +157,7 @@ Journal is binary and can be difficult to interact with, but it's powerful. Some
 ```scp```  
 ```sftp```
 
-## Objective 3: Configure local storage
+## Configure local storage
 ### LVM
 1. ```pvcreate``` create physical volume. Example ```pvcreate volgroup```  
 2. ```vgcreate``` create volume group. Example, ```vgcreate volgroup1 /dev/sdb1```  
@@ -185,7 +184,7 @@ GPT (GUID partition table). Supports UEFI, allows more than 4 partitions per dis
 ```xfs_admin```
 ```tune2fs```
 
-## Objective 4: Create and configure file file systems
+## Create and configure file systems
 
 ### Network file systems
 nfs, smb/cifs
@@ -198,3 +197,137 @@ setfacl
 '-d' for directory
 '-m' to modify
 ```getfacl file1 | setfacl --set-file=- file2``` copies ACL permissions from file1 to file2.
+
+#### Setup a Samba share
+```yum install samba```  
+edit ```/etc/samba/smb.conf``` and create a new share.
+```
+[smbshare]
+path = /smb
+browsable = yes
+writable = yes
+```  
+run ```testparm``` to check syntax of smb.conf file  
+create an smb user.
+```useradd smbuser```
+```smbpasswd -a smbuser```
+create the directory ```mkdir /smb```
+start samba service ```systemctl start smb```
+```smbstatus``` shows status  
+on the client:
+```yum install cifs-utils```
+```mount -t cifs //ipofserver/sharename /mnt/smb -o username=smbuser,password=password```  
+
+#### Setup a NFS share
+```yum install nfs-utils -y```
+```mkdir /nfs```
+edit /etc/exports and add ```/nfs *(rw)```
+```chmod 777 /nfs```
+```exportfs -a``` to implement config in /etc/exportfs  
+```systemctl start nfs```  
+```showmount -e localhost```  
+on client
+```yum install nfs-utils -y```
+```showmount -e ipofserver```-
+```mkdir /mnt/nfs```
+```mount -t nfs //ipofserver:/nfs /mnt/nfs```
+## Deploy, configure and maintain systems
+### Network configuration
+```nmcli``` command line tool for controlling NetworkManager  
+```bash-completion``` is handy for auto-completing nmcli commands  
+```nmcli connection show``` shows network connections
+```ip addr show``` similar to above
+
+### Network time protocol
+```chronyc tracking``` shows ntp status  
+```chronyc sources``` shows ntp sources  
+```/etc/chrony.conf```
+restart chronyd for any changes made to chrony.conf to take affect ```systemctl restart chronyd```  
+### Scheduling tasks
+#### at
+Install at ```yum install at```  
+example:    
+```
+at now +1 minute  
+reboot  
+^d
+```
+```systemctl status atd``` verify at service is running  
+```atq``` shows scheduled commands
+#### cron
+cron examples...
+
+### Modifying the system bootloader
+```yum list kernels```
+```rpm -qa | grep kernel-[0-9]```
+```grubby --info=ALL``` shows installed kernels and their index numbers
+```grubby --default-index``` shows which kernel being used (default is 0)
+```grubby --set-default-index 1``` sets grub to use kernel with index 1
+```grub2-set-default 1` same as above
+```uname -a``` kernel currently in use
+### Updating and installing packages
+####rpm
+```rpm``` common flags
+```i``` install  
+```v``` verbose  SSH
+```h``` shows progress info  
+```U``` upgrade package  
+```e``` erase/remove package  
+####yum
+```yum repolist``` shows configured repositories  
+```yum install packagename.rpm``` will install rpm file and resolve dependencies  
+```install``` ```remove``` ```search```  
+```/etc/yum.repos.d/``` contains repositories  
+```/etc/yum.conf``` yum configuration file  
+### Using LDAP for authentication
+install ldap client
+use authconfig-gtk to configure
+realmd can be used to join Active Directoy domain
+```realm discover ad_servername```
+```realm join ad_servername```
+Install required packages:
+```yum install nss-pam-ldapd pam_krb5 autofs nfs-utils openldap-clients```
+Configure ldap client:
+```
+authconfig --enableldap --enableldapauth --enablemkhomedir --enableldaptls \
+--ldaploadcacert=http://ldap.linuxacademy.com/pub/cert.pem --ldapserver=ldap.linuxacademy.com \
+--ldapbasedn="dc=linuxacademy,dc=com" --update
+```
+## Manage users and groups
+### Manipulating user accounts
+```id```, ```getent``` gets information from /etc/passwd or /etc/shadow, ```/etc/passwd```, ```/etc/shadow```  
+usermod common flags:  
+```c``` modifies comment  
+```d``` modifies home directory location  
+```G``` changes supplimental group membership, ```-g``` for initial login group   
+```L```, ```U``` lock/unlock account
+### Password management and aging
+```chage``` options:  
+```l``` list  
+```M``` minimum days a password is valid for  
+```d``` days since password was set, 0 forces password reset  
+```I``` days inactive before account is locked  
+useradd default settings are here, ```/etc/default/useradd```  
+default values for account parameters ```/etc/login.defs```
+### Managing groups
+```groupmod``` options:  
+```g``` change group id  
+```n``` change name of group  
+```gpasswd -M user1,user2,user3 groupname``` add multiple users to a group
+## Manage security
+### Configuring the firewall
+```firewall-cmd --add-service http``` adds http service to default (public) zone. Not persistent so will revert on reload/restart  
+```firewall-cmd --permanent --add-service http``` adds persistent service  
+```firewall-cmd --reload```  
+```firewall-cmd --runtime-to-permanent``` makes running config persistent  
+### SELinux
+3 modes: enforcing, permissive, disabled  
+```getenforce```  
+```setenforce 1``` sets to enforcing mode (0 for permissive)  
+```getsebool -a``` shows all booleans  
+```setsebool boolname off/on``` use -P to make persistent  
+```semanage fcontext -l``` lists all security contexts  
+```ls -lZ``` shows security context of a file/directory  
+```semanage fcontext -a -t httpd_sys_content_t /var/www/html``` sets context for html directoty  
+```sealert -a /var/log/audit/audit.log``` helpful for troubleshooting  
+```touch /.autorelabel``` forces context relabel on reboot  
