@@ -208,40 +208,40 @@ browsable = yes
 writable = yes
 ```  
 run ```testparm``` to check syntax of smb.conf file  
-create an smb user.
-```useradd smbuser```
-```smbpasswd -a smbuser```
-create the directory ```mkdir /smb```
-start samba service ```systemctl start smb```
+create an smb user  
+```useradd smbuser```  
+```smbpasswd -a smbuser```  
+create the directory ```mkdir /smb```  
+start samba service ```systemctl start smb```  
 ```smbstatus``` shows status  
-on the client:
-```yum install cifs-utils```
+on the client:  
+```yum install cifs-utils```  
 ```mount -t cifs //ipofserver/sharename /mnt/smb -o username=smbuser,password=password```  
 
 #### Setup a NFS share
-```yum install nfs-utils -y```
-```mkdir /nfs```
-edit /etc/exports and add ```/nfs *(rw)```
-```chmod 777 /nfs```
+```yum install nfs-utils -y```  
+```mkdir /nfs```  
+edit /etc/exports and add ```/nfs *(rw)```  
+```chmod 777 /nfs```  
 ```exportfs -a``` to implement config in /etc/exportfs  
 ```systemctl start nfs```  
 ```showmount -e localhost```  
-on client
-```yum install nfs-utils -y```
-```showmount -e ipofserver```-
-```mkdir /mnt/nfs```
-```mount -t nfs //ipofserver:/nfs /mnt/nfs```
+on client  
+```yum install nfs-utils -y```  
+```showmount -e ipofserver```  
+```mkdir /mnt/nfs```  
+```mount -t nfs //ipofserver:/nfs /mnt/nfs```  
 ## Deploy, configure and maintain systems
 ### Network configuration
 ```nmcli``` command line tool for controlling NetworkManager  
 ```bash-completion``` is handy for auto-completing nmcli commands  
-```nmcli connection show``` shows network connections
+```nmcli connection show``` shows network connections  
 ```ip addr show``` similar to above
 
 ### Network time protocol
 ```chronyc tracking``` shows ntp status  
 ```chronyc sources``` shows ntp sources  
-```/etc/chrony.conf```
+```/etc/chrony.conf```  
 restart chronyd for any changes made to chrony.conf to take affect ```systemctl restart chronyd```  
 ### Scheduling tasks
 #### at
@@ -253,40 +253,40 @@ reboot
 ^d
 ```
 ```systemctl status atd``` verify at service is running  
-```atq``` shows scheduled commands
+```atq``` shows scheduled commands  
 #### cron
 cron examples...
 
 ### Modifying the system bootloader
-```yum list kernels```
-```rpm -qa | grep kernel-[0-9]```
-```grubby --info=ALL``` shows installed kernels and their index numbers
-```grubby --default-index``` shows which kernel being used (default is 0)
-```grubby --set-default-index 1``` sets grub to use kernel with index 1
-```grub2-set-default 1` same as above
-```uname -a``` kernel currently in use
+```yum list kernels```  
+```rpm -qa | grep kernel-[0-9]```  
+```grubby --info=ALL``` shows installed kernels and their index numbers  
+```grubby --default-index``` shows which kernel being used (default is 0)    
+```grubby --set-default-index 1``` sets grub to use kernel with index 1  
+```grub2-set-default 1` same as above  
+```uname -a``` kernel currently in use  
 ### Updating and installing packages
 ####rpm
-```rpm``` common flags
+```rpm``` common flags  
 ```i``` install  
-```v``` verbose  SSH
+```v``` verbose  
 ```h``` shows progress info  
 ```U``` upgrade package  
 ```e``` erase/remove package  
 ####yum
 ```yum repolist``` shows configured repositories  
-```yum install packagename.rpm``` will install rpm file and resolve dependencies  
+```yum install packagename.rpm``` will install rpm file and resolve dependencies    
 ```install``` ```remove``` ```search```  
 ```/etc/yum.repos.d/``` contains repositories  
 ```/etc/yum.conf``` yum configuration file  
 ### Using LDAP for authentication
-install ldap client
-use authconfig-gtk to configure
-realmd can be used to join Active Directoy domain
-```realm discover ad_servername```
-```realm join ad_servername```
-Install required packages:
-```yum install nss-pam-ldapd pam_krb5 autofs nfs-utils openldap-clients```
+install ldap client  
+use authconfig-gtk to configure  
+realmd can be used to join Active Directoy domain  
+```realm discover ad_servername```  
+```realm join ad_servername```  
+Install required packages:  
+```yum install nss-pam-ldapd pam_krb5 autofs nfs-utils openldap-clients```  
 Configure ldap client:
 ```
 authconfig --enableldap --enableldapauth --enablemkhomedir --enableldaptls \
@@ -299,7 +299,7 @@ authconfig --enableldap --enableldapauth --enablemkhomedir --enableldaptls \
 usermod common flags:  
 ```c``` modifies comment  
 ```d``` modifies home directory location  
-```G``` changes supplimental group membership, ```-g``` for initial login group   
+```G``` changes supplimental group membership, ```-g``` for initial login group     
 ```L```, ```U``` lock/unlock account
 ### Password management and aging
 ```chage``` options:  
