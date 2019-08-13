@@ -1,10 +1,13 @@
+### To setup Vagrant vm
+```cd vagrant```  
+```vagrant up``` to start vm  
+```vagrant status``` to confirm it's up  
+```vagrant ssh``` to ssh into vm  
+
+Sample RHCSA exam tasks/questions are in tasks.md
+
 To do: 
-* vagrant + ansible to install vim, mlocate, others? on test server
-* add questions-server to vagrantfile
-* flask web server to ask the questions? (test-server) 
-
-
-```vagrant init centos/7```
-```vagrant up```
-
+* add more tasks to tasks.md
+* add another vm to vagrant file and configure as IPA server (could also be used for testing nfs and cifs) 
+* configure vagrant to add a second hard disk for LVM practice
 
